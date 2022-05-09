@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  backend:
+    image: community.merryservices.net/backend
+    restart: always
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+    - 3030:3030
+    environment:
+      PORT: 3030
+      BDD_PORT: 3306
+      BDD_HOST: mysql
+      BDD_USERNAME: root
+      BDD_PASSWORD: supersecret
+      BDD_NAME: community
+  
+  frontend:
+    image: community.merryservices.net/frontend
+    restart: always
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+    - 3000:3000
+    environment:
+      REACT_API_BASE_URL: "http://backend:3030"
+      APP_PORT: 3000
+    
+  mysql:
+    image: community.merryservices.net/database
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    ports:
+      - 3336:3306
+    environment:
+      MARIADB_DATABASE: community
+      MARIADB_ROOT_PASSWORD: supersecret
+    restart: always
+    volumes:
+    - mariadb:/bitnami/mariadb
+
+volumes:
+  mariadb:
